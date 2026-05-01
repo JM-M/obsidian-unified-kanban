@@ -1,0 +1,207 @@
+/* ─── View root ──────────────────────────────────────────────────────────── */
+.uk-view-root {
+  height: 100%;
+  overflow: hidden;
+}
+
+.uk-app {
+  height: 100%;
+  overflow: hidden;
+}
+
+/* ─── Empty state ────────────────────────────────────────────────────────── */
+.uk-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 8px;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.uk-empty code {
+  background: var(--background-secondary);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+/* ─── Board ──────────────────────────────────────────────────────────────── */
+.uk-board {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  height: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  box-sizing: border-box;
+}
+
+/* ─── Column ─────────────────────────────────────────────────────────────── */
+.uk-column {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  width: 280px;
+  max-height: 100%;
+  background: var(--background-secondary);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.uk-column__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: var(--background-secondary-alt);
+  border-bottom: 1px solid var(--background-modifier-border);
+  flex-shrink: 0;
+}
+
+.uk-column__title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-normal);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.uk-column__badge {
+  background: var(--background-modifier-border);
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 10px;
+  min-width: 20px;
+  text-align: center;
+}
+
+.uk-column__body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 8px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.uk-column__empty {
+  padding: 20px;
+  text-align: center;
+  color: var(--text-faint);
+  font-size: 13px;
+}
+
+/* ─── Project group ──────────────────────────────────────────────────────── */
+.uk-project-group {
+  border-radius: 6px;
+  background: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+  transition: border-color 0.15s ease;
+}
+
+.uk-project-group--over {
+  border-color: var(--interactive-accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--interactive-accent) 20%, transparent);
+}
+
+.uk-project-group__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--background-modifier-border);
+  border-left: 3px solid currentColor;
+  background: color-mix(in srgb, var(--background-secondary) 60%, transparent);
+}
+
+.uk-project-group__name {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.uk-project-group__count {
+  font-size: 11px;
+  color: var(--text-muted);
+  background: var(--background-modifier-border);
+  padding: 1px 6px;
+  border-radius: 8px;
+}
+
+.uk-project-group__cards {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px;
+  min-height: 28px;
+  height: auto;
+}
+
+.uk-project-group__empty {
+  padding: 8px;
+  text-align: center;
+  color: var(--text-faint);
+  font-size: 12px;
+  font-style: italic;
+}
+
+/* ─── Card ───────────────────────────────────────────────────────────────── */
+.uk-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 7px 10px;
+  background: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 5px;
+  cursor: grab;
+  user-select: none;
+  transition: box-shadow 0.1s ease, border-color 0.1s ease;
+}
+
+.uk-card:hover {
+  border-color: var(--interactive-accent);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.uk-card:active {
+  cursor: grabbing;
+}
+
+.uk-card--dragging {
+  opacity: 0.4;
+}
+
+.uk-card--overlay {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  transform: rotate(1.5deg);
+  cursor: grabbing;
+  border-color: var(--interactive-accent);
+}
+
+.uk-card__checkbox {
+  flex-shrink: 0;
+  margin-top: 2px;
+  cursor: pointer;
+  accent-color: var(--interactive-accent);
+}
+
+.uk-card__text {
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--text-normal);
+  word-break: break-word;
+}
+
+.uk-card__text--checked {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}

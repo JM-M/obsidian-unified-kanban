@@ -1,0 +1,9 @@
+{
+  "id": "obsidian-unified-kanban",
+  "name": "Unified Kanban",
+  "version": "0.1.0",
+  "minAppVersion": "1.0.0",
+  "description": "A unified, auto-generated Kanban board that aggregates all project Kanban files with two-way binding.",
+  "author": "Michael",
+  "isDesktopOnly": false
+}
