@@ -11,7 +11,7 @@ const SETTINGS_START = '%% kanban:settings';
 /** Archive separator */
 const ARCHIVE_SEP = '***';
 
-function makeId(projectName: string, raw: string): string {
+export function makeId(projectName: string, raw: string): string {
   // Simple stable hash: project + raw text
   let hash = 0;
   const str = projectName + '::' + raw;

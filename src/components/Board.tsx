@@ -27,10 +27,12 @@ interface BoardProps {
     toProject: string,
     insertAfterId: string | null
   ) => void;
-  onToggle: (cardId: string, filePath: string, column: string) => void;
+  onCreateCard: (filePath: string, column: string, projectName: string, text: string) => void;
+  onEditCard: (cardId: string, filePath: string, column: string, newText: string) => void;
+  onDeleteCard: (cardId: string, filePath: string, column: string) => void;
 }
 
-export function Board({ board, projectColors, onMove, onToggle }: BoardProps) {
+export function Board({ board, projectColors, onMove, onCreateCard, onEditCard, onDeleteCard }: BoardProps) {
   const [activeCard, setActiveCard] = useState<KanbanCard | null>(null);
 
   const sensors = useSensors(
@@ -137,7 +139,9 @@ export function Board({ board, projectColors, onMove, onToggle }: BoardProps) {
             key={col.name}
             column={col}
             projectColors={projectColors}
-            onToggle={onToggle}
+            onCreateCard={onCreateCard}
+            onEditCard={onEditCard}
+            onDeleteCard={onDeleteCard}
           />
         ))}
       </div>

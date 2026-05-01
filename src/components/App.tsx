@@ -51,13 +51,16 @@ export function App({ store, settings }: AppProps) {
     });
   }
 
-  function handleToggle(cardId: string, filePath: string, column: string) {
-    store.dispatch({
-      type: 'TOGGLE_CARD',
-      cardId,
-      filePath,
-      column,
-    });
+  function handleCreateCard(filePath: string, column: string, projectName: string, text: string) {
+    store.dispatch({ type: 'CREATE_CARD', projectName, filePath, column, text });
+  }
+
+  function handleEditCard(cardId: string, filePath: string, column: string, newText: string) {
+    store.dispatch({ type: 'EDIT_CARD', cardId, filePath, column, newText });
+  }
+
+  function handleDeleteCard(cardId: string, filePath: string, column: string) {
+    store.dispatch({ type: 'DELETE_CARD', cardId, filePath, column });
   }
 
   if (board.columns.length === 0) {
@@ -75,7 +78,9 @@ export function App({ store, settings }: AppProps) {
         board={board}
         projectColors={projectColors}
         onMove={handleMove}
-        onToggle={handleToggle}
+        onCreateCard={handleCreateCard}
+        onEditCard={handleEditCard}
+        onDeleteCard={handleDeleteCard}
       />
     </div>
   );

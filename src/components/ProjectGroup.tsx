@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   SortableContext,
   verticalListSortingStrategy,
@@ -13,7 +13,9 @@ interface ProjectGroupProps {
   column: string;
   cards: KanbanCard[];
   color: string;
-  onToggle: (cardId: string, filePath: string, column: string) => void;
+  onCreateCard: (filePath: string, column: string, projectName: string, text: string) => void;
+  onEditCard: (cardId: string, filePath: string, column: string, newText: string) => void;
+  onDeleteCard: (cardId: string, filePath: string, column: string) => void;
 }
 
 export function ProjectGroup({
@@ -22,8 +24,14 @@ export function ProjectGroup({
   column,
   cards,
   color,
-  onToggle,
+  onCreateCard,
+  onEditCard,
+  onDeleteCard,
 }: ProjectGroupProps) {
+  const [isCreating, setIsCreating] = useState(false);
+  const [newCardText, setNewCardText] = useState('');
+  const createInputRef = useRef<HTMLInputElement>(null);
+
   // Each project group within a column is a droppable zone.
   // The id format: "col::Column Name::proj::ProjectName"
   const droppableId = `col::${column}::proj::${projectName}`;
@@ -33,6 +41,22 @@ export function ProjectGroup({
     data: { column, projectName, filePath },
   });
 
+  useEffect(() => {
+    if (isCreating) createInputRef.current?.focus();
+  }, [isCreating]);
+
+  function confirmCreate() {
+    const trimmed = newCardText.trim();
+    if (trimmed) onCreateCard(filePath, column, projectName, trimmed);
+    setNewCardText('');
+    setIsCreating(false);
+  }
+
+  function cancelCreate() {
+    setNewCardText('');
+    setIsCreating(false);
+  }
+
   return (
     <div
       className={`uk-project-group${isOver ? ' uk-project-group--over' : ''}`}
@@ -41,7 +65,17 @@ export function ProjectGroup({
         <span className="uk-project-group__name" style={{ color }}>
           {projectName}
         </span>
-        <span className="uk-project-group__count">{cards.length}</span>
+        <div className="uk-project-group__header-right">
+          <span className="uk-project-group__count">{cards.length}</span>
+          <button
+            className="uk-project-group__add-btn"
+            onClick={() => setIsCreating(true)}
+            onPointerDown={(e) => e.stopPropagation()}
+            aria-label="Add card"
+          >
+            +
+          </button>
+        </div>
       </div>
 
       <SortableContext
@@ -56,14 +90,33 @@ export function ProjectGroup({
               column={column}
               projectName={projectName}
               filePath={filePath}
-              onToggle={onToggle}
+              onEdit={onEditCard}
+              onDelete={onDeleteCard}
             />
           ))}
-          {cards.length === 0 && (
+          {cards.length === 0 && !isCreating && (
             <div className="uk-project-group__empty">Drop cards here</div>
           )}
         </div>
       </SortableContext>
+
+      {isCreating && (
+        <div className="uk-project-group__create">
+          <input
+            ref={createInputRef}
+            className="uk-card-input"
+            placeholder="Card title…"
+            value={newCardText}
+            onChange={(e) => setNewCardText(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') { e.preventDefault(); confirmCreate(); }
+              if (e.key === 'Escape') { e.preventDefault(); cancelCreate(); }
+            }}
+            onBlur={confirmCreate}
+            onPointerDown={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
     </div>
   );
 }

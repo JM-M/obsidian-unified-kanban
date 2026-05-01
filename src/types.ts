@@ -58,12 +58,35 @@ export type ToggleCardAction = {
   column: string;
 };
 
+export type DeleteCardAction = {
+  type: 'DELETE_CARD';
+  cardId: string;
+  filePath: string;
+  column: string;
+};
+
+export type CreateCardAction = {
+  type: 'CREATE_CARD';
+  projectName: string;
+  filePath: string;
+  column: string;
+  text: string;
+};
+
+export type EditCardAction = {
+  type: 'EDIT_CARD';
+  cardId: string;
+  filePath: string;
+  column: string;
+  newText: string;
+};
+
 export type FileChangedAction = {
   type: 'FILE_CHANGED';
   filePath: string;
 };
 
-export type BoardAction = MoveCardAction | ToggleCardAction | FileChangedAction;
+export type BoardAction = MoveCardAction | ToggleCardAction | DeleteCardAction | CreateCardAction | EditCardAction | FileChangedAction;
 
 export interface StoreState {
   board: UnifiedBoard;

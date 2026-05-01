@@ -128,12 +128,57 @@
   letter-spacing: 0.06em;
 }
 
+.uk-project-group__header-right {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
 .uk-project-group__count {
   font-size: 11px;
   color: var(--text-muted);
   background: var(--background-modifier-border);
   padding: 1px 6px;
   border-radius: 8px;
+}
+
+.uk-project-group__add-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  border-radius: 3px;
+  padding: 0;
+  transition: background 0.1s ease, color 0.1s ease;
+}
+
+.uk-project-group__add-btn:hover {
+  background: var(--background-modifier-hover);
+  color: var(--text-normal);
+}
+
+/* ─── Card create input ───────────────────────────────────────────────────── */
+.uk-project-group__create {
+  padding: 4px 6px 6px;
+}
+
+.uk-card-input {
+  width: 100%;
+  box-sizing: border-box;
+  font-size: 13px;
+  padding: 6px 8px;
+  border: 1px solid var(--interactive-accent);
+  border-radius: 5px;
+  background: var(--background-primary);
+  color: var(--text-normal);
+  outline: none;
 }
 
 .uk-project-group__cards {
@@ -187,13 +232,6 @@
   border-color: var(--interactive-accent);
 }
 
-.uk-card__checkbox {
-  flex-shrink: 0;
-  margin-top: 2px;
-  cursor: pointer;
-  accent-color: var(--interactive-accent);
-}
-
 .uk-card__text {
   font-size: 13px;
   line-height: 1.4;
@@ -204,4 +242,51 @@
 .uk-card__text--checked {
   text-decoration: line-through;
   color: var(--text-muted);
+}
+
+/* ─── Card delete button ─────────────────────────────────────────────────── */
+.uk-card__delete-btn {
+  flex-shrink: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  margin-left: auto;
+  border: none;
+  background: transparent;
+  color: var(--text-faint);
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  border-radius: 3px;
+  padding: 0;
+  transition: background 0.1s ease, color 0.1s ease;
+}
+
+.uk-card:hover .uk-card__delete-btn {
+  display: flex;
+}
+
+.uk-card__delete-btn:hover {
+  background: var(--background-modifier-error);
+  color: var(--text-on-accent);
+}
+
+/* ─── Card inline edit textarea ──────────────────────────────────────────── */
+.uk-card__edit-input {
+  display: block;
+  width: 100%;
+  font-size: 13px;
+  line-height: 1.4;
+  font-family: inherit;
+  color: var(--text-normal);
+  background: transparent;
+  border: none;
+  outline: none;
+  padding: 0;
+  resize: none;
+  overflow: hidden;
+  min-height: 1.4em;
+  box-sizing: border-box;
 }

@@ -1,15 +1,16 @@
 import React from 'react';
 import { UnifiedColumn } from '../types';
 import { ProjectGroup } from './ProjectGroup';
-import { KanbanCard } from '../types';
 
 interface ColumnProps {
   column: UnifiedColumn;
   projectColors: Record<string, string>;
-  onToggle: (cardId: string, filePath: string, column: string) => void;
+  onCreateCard: (filePath: string, column: string, projectName: string, text: string) => void;
+  onEditCard: (cardId: string, filePath: string, column: string, newText: string) => void;
+  onDeleteCard: (cardId: string, filePath: string, column: string) => void;
 }
 
-export function Column({ column, projectColors, onToggle }: ColumnProps) {
+export function Column({ column, projectColors, onCreateCard, onEditCard, onDeleteCard }: ColumnProps) {
   const totalCards = column.projects.reduce((n, p) => n + p.cards.length, 0);
 
   return (
@@ -28,7 +29,9 @@ export function Column({ column, projectColors, onToggle }: ColumnProps) {
             column={column.name}
             cards={lane.cards}
             color={projectColors[lane.projectName] ?? '#888'}
-            onToggle={onToggle}
+            onCreateCard={onCreateCard}
+            onEditCard={onEditCard}
+            onDeleteCard={onDeleteCard}
           />
         ))}
         {column.projects.length === 0 && (

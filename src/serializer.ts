@@ -108,6 +108,24 @@ export function insertCard(
 }
 
 /**
+ * Edit the text of an existing card in the file content.
+ */
+export function editCard(content: string, card: KanbanCard, newText: string): string {
+  const lines = content.split('\n');
+  const newRaw = `- [${card.checkChar}] ${newText}`;
+
+  const line = lines[card.lineIndex];
+  if (line && line.trim() === card.raw) {
+    lines[card.lineIndex] = newRaw;
+    return lines.join('\n');
+  }
+  // Fallback: search by raw text
+  const idx = lines.findIndex((l) => l.trim() === card.raw);
+  if (idx !== -1) lines[idx] = newRaw;
+  return lines.join('\n');
+}
+
+/**
  * Toggle the check state of a card in the file content.
  */
 export function toggleCard(content: string, card: KanbanCard): string {

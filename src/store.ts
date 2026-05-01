@@ -1,6 +1,6 @@
 import { App, TFile, normalizePath } from 'obsidian';
-import { parseKanbanFile } from './parser';
-import { removeCard, insertCard, toggleCard } from './serializer';
+import { parseKanbanFile, makeId } from './parser';
+import { removeCard, insertCard, toggleCard, editCard } from './serializer';
 import {
   UnifiedBoard,
   ParsedKanban,
@@ -130,6 +130,15 @@ export class KanbanStore {
       case 'TOGGLE_CARD':
         await this.handleToggleCard(action);
         break;
+      case 'DELETE_CARD':
+        await this.handleDeleteCard(action);
+        break;
+      case 'CREATE_CARD':
+        await this.handleCreateCard(action);
+        break;
+      case 'EDIT_CARD':
+        await this.handleEditCard(action);
+        break;
       case 'FILE_CHANGED':
         // handled via onFileModified
         break;
@@ -234,6 +243,80 @@ export class KanbanStore {
 
     await this.writeFile(action.filePath, (content) =>
       toggleCard(content, card)
+    );
+  }
+
+  private async handleDeleteCard(
+    action: Extract<BoardAction, { type: 'DELETE_CARD' }>
+  ): Promise<void> {
+    const parsed = this.parsedFiles.get(action.filePath);
+    if (!parsed) return;
+
+    const card = this.findCardInProject(action.cardId, action.filePath);
+    if (!card) return;
+
+    // Optimistic update
+    this.removeCardFromParsed(parsed, action.column, action.cardId);
+    this.rebuildBoard();
+    this.notify();
+
+    await this.writeFile(action.filePath, (content) => removeCard(content, card));
+  }
+
+  private async handleCreateCard(
+    action: Extract<BoardAction, { type: 'CREATE_CARD' }>
+  ): Promise<void> {
+    const parsed = this.parsedFiles.get(action.filePath);
+    if (!parsed) return;
+
+    const raw = `- [ ] ${action.text}`;
+    const newCard: KanbanCard = {
+      id: makeId(action.projectName, raw),
+      raw,
+      text: action.text,
+      checked: false,
+      checkChar: ' ',
+      lineIndex: -1,
+    };
+
+    // Append after the last card in this column
+    const colCards = parsed.columns.get(action.column) ?? [];
+    const afterCard = colCards.length > 0 ? colCards[colCards.length - 1] : null;
+
+    // Optimistic update
+    this.insertCardToParsed(parsed, action.column, newCard, afterCard);
+    this.rebuildBoard();
+    this.notify();
+
+    await this.writeFile(action.filePath, (content) =>
+      insertCard(content, action.column, newCard, afterCard)
+    );
+  }
+
+  private async handleEditCard(
+    action: Extract<BoardAction, { type: 'EDIT_CARD' }>
+  ): Promise<void> {
+    const parsed = this.parsedFiles.get(action.filePath);
+    if (!parsed) return;
+
+    const card = this.findCardInProject(action.cardId, action.filePath);
+    if (!card) return;
+
+    const newRaw = `- [${card.checkChar}] ${action.newText}`;
+    const updatedCard: KanbanCard = {
+      ...card,
+      raw: newRaw,
+      text: action.newText,
+      id: makeId(parsed.projectName, newRaw),
+    };
+
+    // Optimistic update
+    this.replaceCardInParsed(parsed, action.column, card, updatedCard);
+    this.rebuildBoard();
+    this.notify();
+
+    await this.writeFile(action.filePath, (content) =>
+      editCard(content, card, action.newText)
     );
   }
 
