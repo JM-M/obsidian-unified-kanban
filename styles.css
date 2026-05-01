@@ -7,6 +7,8 @@
 .uk-app {
   height: 100%;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 /* ─── Empty state ────────────────────────────────────────────────────────── */
@@ -35,10 +37,70 @@
   align-items: flex-start;
   gap: 12px;
   padding: 16px;
-  height: 100%;
+  flex: 1;
+  min-height: 0;
   overflow-x: auto;
   overflow-y: hidden;
   box-sizing: border-box;
+}
+
+/* ─── Filter bar ─────────────────────────────────────────────────────────── */
+.uk-filter-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 7px 14px;
+  border-bottom: 1px solid var(--background-modifier-border);
+  background: var(--background-secondary-alt);
+  flex-shrink: 0;
+}
+
+.uk-filter-bar__group {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.uk-filter-bar__divider {
+  width: 1px;
+  height: 18px;
+  background: var(--background-modifier-border);
+  margin: 0 2px;
+  flex-shrink: 0;
+}
+
+.uk-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 11px;
+  border: 1px solid var(--background-modifier-border);
+  background: var(--background-secondary);
+  color: var(--text-normal);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.4;
+  cursor: pointer;
+  transition: background 0.1s ease, opacity 0.1s ease, border-color 0.1s ease;
+}
+
+.uk-filter-chip:hover {
+  background: var(--background-modifier-hover);
+  border-color: var(--text-muted);
+}
+
+.uk-filter-chip--hidden {
+  opacity: 0.38;
+}
+
+.uk-filter-chip__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
 }
 
 /* ─── Column ─────────────────────────────────────────────────────────────── */

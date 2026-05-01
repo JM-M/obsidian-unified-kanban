@@ -2,13 +2,15 @@ import React, { useEffect, useState } from 'react';
 import { KanbanStore } from '../store';
 import { UnifiedBoard, PluginSettings, PROJECT_COLORS } from '../types';
 import { Board } from './Board';
+import { FilterBar } from './FilterBar';
 
 interface AppProps {
   store: KanbanStore;
   settings: PluginSettings;
+  onSettingsChange: (settings: PluginSettings) => void;
 }
 
-export function App({ store, settings }: AppProps) {
+export function App({ store, settings, onSettingsChange }: AppProps) {
   const [board, setBoard] = useState<UnifiedBoard>(store.getBoard());
 
   useEffect(() => {
@@ -16,21 +18,35 @@ export function App({ store, settings }: AppProps) {
     return unsubscribe;
   }, [store]);
 
+  const allColumns = store.getAllColumnNames();
+  const allProjects = store.getAllProjectNames();
+
   // Assign colors to projects: use settings first, then cycle through defaults
   const projectColors = React.useMemo(() => {
     const colors: Record<string, string> = { ...settings.projectColors };
     let colorIdx = 0;
-    for (const col of board.columns) {
-      for (const lane of col.projects) {
-        if (!colors[lane.projectName]) {
-          colors[lane.projectName] =
-            PROJECT_COLORS[colorIdx % PROJECT_COLORS.length];
-          colorIdx++;
-        }
+    for (const name of allProjects) {
+      if (!colors[name]) {
+        colors[name] = PROJECT_COLORS[colorIdx % PROJECT_COLORS.length];
+        colorIdx++;
       }
     }
     return colors;
-  }, [board, settings.projectColors]);
+  }, [allProjects, settings.projectColors]);
+
+  function handleToggleColumn(name: string) {
+    const hidden = settings.hiddenColumns.includes(name)
+      ? settings.hiddenColumns.filter((c) => c !== name)
+      : [...settings.hiddenColumns, name];
+    onSettingsChange({ ...settings, hiddenColumns: hidden });
+  }
+
+  function handleToggleProject(name: string) {
+    const hidden = settings.hiddenProjects.includes(name)
+      ? settings.hiddenProjects.filter((p) => p !== name)
+      : [...settings.hiddenProjects, name];
+    onSettingsChange({ ...settings, hiddenProjects: hidden });
+  }
 
   function handleMove(
     cardId: string,
@@ -63,7 +79,7 @@ export function App({ store, settings }: AppProps) {
     store.dispatch({ type: 'DELETE_CARD', cardId, filePath, column });
   }
 
-  if (board.columns.length === 0) {
+  if (board.columns.length === 0 && allProjects.length === 0) {
     return (
       <div className="uk-empty">
         <p>No Kanban boards found in <code>{settings.projectsFolderPath}/</code>.</p>
@@ -74,6 +90,15 @@ export function App({ store, settings }: AppProps) {
 
   return (
     <div className="uk-app">
+      <FilterBar
+        allColumns={allColumns}
+        allProjects={allProjects}
+        hiddenColumns={settings.hiddenColumns}
+        hiddenProjects={settings.hiddenProjects}
+        projectColors={projectColors}
+        onToggleColumn={handleToggleColumn}
+        onToggleProject={handleToggleProject}
+      />
       <Board
         board={board}
         projectColors={projectColors}

@@ -39,6 +39,28 @@ export class KanbanStore {
     return this.board;
   }
 
+  updateSettings(settings: PluginSettings): void {
+    this.settings = settings;
+    this.rebuildBoard();
+    this.notify();
+  }
+
+  getAllColumnNames(): string[] {
+    const allColumns = new Set<string>(COLUMN_ORDER);
+    for (const parsed of this.parsedFiles.values()) {
+      for (const col of parsed.columnOrder) allColumns.add(col);
+    }
+    const result = COLUMN_ORDER.filter((c) => allColumns.has(c));
+    for (const col of allColumns) {
+      if (!COLUMN_ORDER.includes(col)) result.push(col);
+    }
+    return result;
+  }
+
+  getAllProjectNames(): string[] {
+    return Array.from(this.parsedFiles.values()).map((p) => p.projectName);
+  }
+
   // ─── Initialization ────────────────────────────────────────────────────────
 
   async initialize(): Promise<void> {

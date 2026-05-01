@@ -11,15 +11,18 @@ export class UnifiedKanbanView extends ItemView {
   private root: Root | null = null;
   private store: KanbanStore;
   private settings: PluginSettings;
+  private onSaveSettings: (settings: PluginSettings) => Promise<void>;
 
   constructor(
     leaf: WorkspaceLeaf,
     store: KanbanStore,
-    settings: PluginSettings
+    settings: PluginSettings,
+    onSaveSettings: (settings: PluginSettings) => Promise<void>
   ) {
     super(leaf);
     this.store = store;
     this.settings = settings;
+    this.onSaveSettings = onSaveSettings;
   }
 
   getViewType(): string {
@@ -45,12 +48,20 @@ export class UnifiedKanbanView extends ItemView {
     this.root = null;
   }
 
+  private handleSettingsChange = (settings: PluginSettings): void => {
+    this.settings = settings;
+    this.store.updateSettings(settings);
+    this.onSaveSettings(settings);
+    this.render();
+  };
+
   private render(): void {
     if (!this.root) return;
     this.root.render(
       React.createElement(KanbanApp, {
         store: this.store,
         settings: this.settings,
+        onSettingsChange: this.handleSettingsChange,
       })
     );
   }

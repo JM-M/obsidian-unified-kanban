@@ -18,7 +18,11 @@ export default class UnifiedKanbanPlugin extends Plugin {
     // Register view
     this.registerView(
       VIEW_TYPE_UNIFIED_KANBAN,
-      (leaf) => new UnifiedKanbanView(leaf, this.store, this.settings)
+      (leaf) =>
+        new UnifiedKanbanView(leaf, this.store, this.settings, async (settings) => {
+          this.settings = settings;
+          await this.saveData(settings);
+        })
     );
 
     // Ribbon icon
@@ -78,9 +82,7 @@ export default class UnifiedKanbanPlugin extends Plugin {
 
   async saveSettings(): Promise<void> {
     await this.saveData(this.settings);
-    // Update store with new settings
-    this.store = new KanbanStore(this.app, this.settings);
-    await this.store.initialize();
+    this.store.updateSettings(this.settings);
 
     // Refresh any open views
     this.app.workspace
