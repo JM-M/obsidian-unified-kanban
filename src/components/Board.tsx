@@ -60,7 +60,6 @@ export function Board({ board, projectColors, onMove, onToggle }: BoardProps) {
       filePath: string;
     };
 
-    // over could be a card (sortable) or a droppable project group
     const overId = over.id as string;
 
     let toColumn: string;
@@ -68,13 +67,19 @@ export function Board({ board, projectColors, onMove, onToggle }: BoardProps) {
     let insertAfterId: string | null = null;
 
     if (overId.startsWith('col::')) {
-      // Dropped onto a project group droppable
+      // Dropped onto a project group droppable (empty area) — append to end
       const parts = overId.split('::');
-      // format: "col::Column Name::proj::ProjectName"
       toColumn = parts[1];
       toProject = parts[3];
+
+      // insertAfterId stays null → store will append at end
+      const col = board.columns.find((c) => c.name === toColumn);
+      const lane = col?.projects.find((p) => p.projectName === toProject);
+      if (lane && lane.cards.length > 0) {
+        insertAfterId = lane.cards[lane.cards.length - 1].id;
+      }
     } else {
-      // Dropped onto another card (sortable)
+      // Dropped onto a card — decide before or after based on pointer position
       const overData = over.data.current as {
         card: KanbanCard;
         column: string;
@@ -83,17 +88,27 @@ export function Board({ board, projectColors, onMove, onToggle }: BoardProps) {
       if (!overData) return;
       toColumn = overData.column;
       toProject = overData.projectName;
-      insertAfterId = overData.card.id;
+
+      // Compare the midpoint of the target card to the top of the dragged item
+      const activeTop = active.rect.current.translated?.top ?? 0;
+      const overMid = over.rect.top + over.rect.height / 2;
+      const insertBefore = activeTop < overMid;
+
+      if (insertBefore) {
+        // Find the card that comes before the target in this project group
+        const col = board.columns.find((c) => c.name === toColumn);
+        const lane = col?.projects.find((p) => p.projectName === toProject);
+        if (lane) {
+          const idx = lane.cards.findIndex((c) => c.id === overData.card.id);
+          insertAfterId = idx > 0 ? lane.cards[idx - 1].id : null;
+        }
+      } else {
+        insertAfterId = overData.card.id;
+      }
     }
 
-    if (
-      activeData.card.id === insertAfterId ||
-      (activeData.column === toColumn &&
-        activeData.projectName === toProject &&
-        !insertAfterId)
-    ) {
-      return; // No-op
-    }
+    // No-op: same position
+    if (activeData.card.id === insertAfterId) return;
 
     onMove(
       activeData.card.id,

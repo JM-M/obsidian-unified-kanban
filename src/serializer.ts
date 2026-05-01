@@ -28,7 +28,8 @@ export function removeCard(content: string, card: KanbanCard): string {
 
 /**
  * Insert a card into a specific column in a file's content.
- * If insertAfterId is provided, inserts after that card's line; otherwise appends to column.
+ * afterCard = null  → insert at the TOP of the column (before all existing cards).
+ * afterCard = card  → insert immediately after that card's line.
  */
 export function insertCard(
   content: string,
@@ -38,18 +39,20 @@ export function insertCard(
 ): string {
   const lines = content.split('\n');
 
+  // ── Insert after a specific card ─────────────────────────────────────────
   if (afterCard) {
-    // Insert immediately after the target card's line
     const afterLine = lines.findIndex((l) => l.trim() === afterCard.raw);
     if (afterLine !== -1) {
       lines.splice(afterLine + 1, 0, card.raw);
       return lines.join('\n');
     }
+    // afterCard not found — fall through to append-at-end behaviour
   }
 
-  // Find the column heading and append at the end of its card list
+  // ── Scan the column ───────────────────────────────────────────────────────
   let inTargetColumn = false;
-  let insertAt = -1;
+  let firstCardLine = -1; // line index of the first task in this column
+  let insertAt = -1;      // fallback: append position
 
   for (let i = 0; i < lines.length; i++) {
     const trimmed = lines[i].trim();
@@ -57,7 +60,7 @@ export function insertCard(
     const headingMatch = trimmed.match(HEADING_RE);
     if (headingMatch) {
       if (inTargetColumn) {
-        // We've moved to the next column — insert before this line
+        // Moved past the target column
         insertAt = i;
         break;
       }
@@ -68,24 +71,23 @@ export function insertCard(
     }
 
     if (inTargetColumn) {
-      // Track archive separator and settings as column terminators
       if (trimmed === ARCHIVE_SEP || trimmed.startsWith(SETTINGS_START)) {
         insertAt = i;
         break;
       }
-      // Track the last task line in this column
-      if (trimmed.match(TASK_RE) || trimmed === '') {
+      if (trimmed.match(TASK_RE)) {
+        if (firstCardLine === -1) firstCardLine = i;
+        insertAt = i + 1; // keep updating so we end up after the last card
+      } else if (trimmed === '' && insertAt === -1) {
         insertAt = i + 1;
       }
     }
   }
 
-  if (insertAt === -1 && inTargetColumn) {
-    insertAt = lines.length;
-  }
+  if (insertAt === -1 && inTargetColumn) insertAt = lines.length;
 
   if (insertAt === -1) {
-    // Column not found — append column and card at end (before settings)
+    // Column not found — create it before the settings footer
     const settingsIdx = lines.findIndex((l) =>
       l.trim().startsWith(SETTINGS_START)
     );
@@ -94,6 +96,13 @@ export function insertCard(
     return lines.join('\n');
   }
 
+  // ── afterCard null → insert at TOP (before first existing card) ───────────
+  if (!afterCard && firstCardLine !== -1) {
+    lines.splice(firstCardLine, 0, card.raw);
+    return lines.join('\n');
+  }
+
+  // afterCard null + empty column, OR afterCard not found → append at end
   lines.splice(insertAt, 0, card.raw);
   return lines.join('\n');
 }
